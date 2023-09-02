@@ -1,0 +1,86 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>注册</title>
+    <link rel="stylesheet" href="{% static 'plugins/bootstrap-3.3.7-dist/css/bootstrap.css' %}">
+</head>
+<body>
+
+<div class="navbar navbar-default">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/"><span class="glyphicon glyphicon-chevron-left"></span>BACK</a>
+        </div>
+    </div><!-- /.container-fluid -->
+</div>
+
+<div class="container mt-5">
+    <h2>Registration</h2>
+    <form method="post" onsubmit="return validateForm()">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" class="form-control" id="username" name="username" required>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="first_name">First Name:</label>
+                <input type="text" class="form-control" id="first_name" name="first_name" required>
+            </div>
+            <div class="form-group col-md-6">
+                <label for="last_name">Last Name:</label>
+                <input type="text" class="form-control" id="last_name" name="last_name" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" class="form-control" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" class="form-control" id="password" name="password" required>
+        </div>
+        <div class="form-group">
+            <label for="confirm_password">Confirm Password:</label>
+            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Register</button>
+    </form>
+
+
+</div>
+<!-- 引入Bootstrap的JavaScript文件（位于body标签底部） -->
+<script src="{% static 'js/jquery-3.7.0.min.js' %}"></script>
+<script src="{% static 'plugins/bootstrap-3.3.7-dist/js/bootstrap.min.js' %}"></script>
+
+<script>
+    // 在注册页面上展示注册结果信息
+    var msg = "{{ msg }}";
+    if (msg) {
+        alert(msg);
+    }
+
+    function validateForm() {
+        var password = document.getElementById("password").value;
+        var confirm_password = document.getElementById("confirm_password").value;
+
+        if (password != confirm_password) {
+            alert("Passwords do not match. Please re-enter.");
+            return false;
+        }
+        return true;
+    }
+</script>
+</body>
+</html>

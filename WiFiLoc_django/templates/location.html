@@ -1,0 +1,134 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WiFi定位</title>
+    <link rel="stylesheet" href="{% static 'plugins/bootstrap-3.3.7-dist/css/bootstrap.css' %}">
+    <style>
+        #imageContainer {
+            position: relative;
+        }
+
+        #myImage {
+            max-height: 100%;
+            max-width: 70%;
+        }
+
+        .redDot {
+            width: 10px;
+            height: 10px;
+            background-color: red;
+            border-radius: 50%;
+            position: absolute;
+        }
+    </style>
+</head>
+<body>
+
+<div class="navbar navbar-default">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">USTC-LINKE</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li><a href="/configuration"> 定位配置 </a></li>
+                <li class="active"><a href="#">实时定位 <span class="sr-only">(current)</span> </a></li>
+                <li><a href="#">联系我们</a></li>
+                <li><a href="#">帮助文档</a></li>
+            </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">{{ request.user.username }}<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">修改密码</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="/logout">注销</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</div>
+
+<div class="col-md-2">
+    <div style="margin-bottom: 10px">
+        <a class="btn btn-primary" id="startButton">定位</a>
+        <a class="btn btn-primary" id="stopButton">结束</a>
+    </div>
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">定位结果</div>
+        <div class="panel-body" id="pointInfo">
+            简称:<br>
+            MAC:<br>
+            坐标:<br>
+        </div>
+    </div>
+</div>
+<div id="imageContainer" class="container col-sm-10">
+
+    <img id="myImage" src="{% static 'images/locarea.png' %}" alt="Responsive image"/>
+    <div class="redDot" id="dot1"></div>
+</div>
+
+<script src="{% static 'js/jquery-3.7.0.min.js' %}"></script>
+<script src="{% static 'plugins/bootstrap-3.3.7-dist/js/bootstrap.min.js' %}"></script>
+<script type="text/javascript">
+    // 获取图片元素和红点div元素
+    const imageContainer = document.getElementById('imageContainer');
+    const image = document.getElementById('myImage');
+    const redDot = document.getElementById('dot1');
+    const pointInfo = document.getElementById('pointInfo');
+    // 设置红点符号在图片上的位置
+
+    var intervalId = null;
+
+    let positionX = image.width * {{ x }}; // 以像素为单位，根据您的需要进行调整
+    let positionY = image.height * {{ y }}; // 以像素为单位，根据您的需要进行调整
+    redDot.style.left = positionX + 'px';
+    redDot.style.top = positionY + 'px';
+
+    $('#startButton').click(function () {
+        intervalId = setInterval(function () {
+            $.ajax({
+                url: "/startwifiloc",  // 替换为您的URL
+                success: function (response) {
+                    positionX = image.width * response.x;
+                    positionY = image.height * response.y;
+                    redDot.style.left = positionX + 'px';
+                    redDot.style.top = positionY + 'px';
+                }
+            });
+        }, 1500);  // 每0.5秒请求一次
+    });
+
+    $('#stopButton').click(function () {
+        clearInterval(intervalId);
+    });
+
+
+    // 当用户点击红点时，显示点的名称和坐标信息
+    redDot.addEventListener('click', function (event) {
+        console.log('点名称: A<br>坐标: (${positionX}, ${positionY})')
+        pointInfo.innerHTML = '简称: A<br>MAC: 12:c5:23:11:03:aa<br>坐标: (' + positionX + ', ' + positionY + ')<br>';
+    });
+
+
+</script>
+</body>
+</html>

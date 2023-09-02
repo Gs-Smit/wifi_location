@@ -1,0 +1,219 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WiFi定位</title>
+    <link rel="stylesheet" href="{% static 'plugins/bootstrap-3.3.7-dist/css/bootstrap.css' %}">
+    <style>
+        .navbar {
+            border-radius: 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="navbar navbar-default">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">USTC-LINKE</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#"> 定位配置 <span class="sr-only">(current)</span></a></li>
+                <li><a href="/location">实时定位</a></li>
+                <li><a href="#">联系我们</a></li>
+                <li><a href="#">帮助文档</a></li>
+            </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">{{ request.user.username }}<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">修改密码</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="/logout">注销</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</div>
+
+<div class="container">
+    <div class="panel panel-primary">
+        <div class="panel-heading">区域信息配置</div>
+        <div class="panel-body">
+            <form method="post" action="/configuration/">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="addressName">区域名称</label>
+                    <input type="text" class="form-control" id="addressName" placeholder="请输入区域名称" name="name"
+                           value="{{ area.name }}">
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label for="areaLength">区域长(m)</label>
+                        <input type="text" class="form-control" id="areaLength" placeholder="区域x方向距离" name="length"
+                               value="{{ area.length }}">
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="areaWidth">区域宽(m)</label>
+                        <input type="text" class="form-control" id="areaWidth" placeholder="区域y轴方向距离" name="width"
+                               value="{{ area.width }}">
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="areaState">区域密度</label>
+                        <select id="areaState" class="form-control" name="state">
+                            <option
+                                    {% if area.state == "密集" %}
+                                        selected
+                                    {% endif %}
+                            >密集
+                            </option>
+                            <option
+                                    {% if area.state == "普通" %}
+                                        selected
+                                    {% endif %}
+                            >普通
+                            </option>
+                            <option
+                                    {% if area.state == "空旷" %}
+                                        selected
+                                    {% endif %}
+                            >空旷
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-md-3">
+                        <label for="ap1xy">AP1位置</label>
+                        <input type="text" class="form-control" id="ap1xy" placeholder="以0-1标明AP位置 x,y" name="ap1"
+                               value="{{ area.ap1 }}">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label for="ap2xy">AP2位置</label>
+                        <input type="text" class="form-control" id="ap2xy" placeholder="以0-1标明AP位置 x,y" name="ap2"
+                               value="{{ area.ap2 }}">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label for="ap3xy">AP3位置</label>
+                        <input type="text" class="form-control" id="ap3xy" placeholder="以0-1标明AP位置 x,y" name="ap3"
+                               value="{{ area.ap3 }}">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label for="ap4xy">AP4位置</label>
+                        <input type="text" class="form-control" id="ap4xy" placeholder="以0-1标明AP位置 x,y" name="ap4"
+                               value="{{ area.ap4 }}">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">修改</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="panel panel-success">
+        <div class="panel-heading">定位设备配置</div>
+        <div class="panel-body">
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">新增</button>
+        </div>
+        <!-- Table -->
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">MAC地址</th>
+                <th scope="col">简称</th>
+                <th scope="col">设备类型</th>
+                <th scope="col">用户类型</th>
+                <th scope="col">操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% if dev_infos %}
+                {% for dev_info in dev_infos %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ dev_info.mac }}</td>
+                        <td>{{ dev_info.abbreviation }}</td>
+                        <td>{{ dev_info.device_mold }}</td>
+                        <td>{{ dev_info.user_mold }}</td>
+                        <td>
+                            <a class="btn btn-primary btn-xs">编辑</a>
+                            <a class="btn btn-danger btn-xs">删除</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+
+</div>
+
+<!-- 模态框 -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">添加新设备</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="/adddevice/">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="deviceName">MAC地址:</label>
+                        <input type="text" class="form-control" id="deviceName" name="mac" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="deviceShortName">设备简称:</label>
+                        <input type="text" class="form-control" id="deviceShortName" name="abbreviation" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="deviceType">设备类型:</label>
+                        <input type="text" class="form-control" id="deviceType" name="device_mold" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="userType">用户类型:</label>
+                        <input type="text" class="form-control" id="userType" name="user_mold" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<script src="{% static 'js/jquery-3.7.0.min.js' %}"></script>
+<script src="{% static 'plugins/bootstrap-3.3.7-dist/js/bootstrap.min.js' %}"></script>
+<script>
+    var msg = "{{ msg }}";
+    if (msg) {
+        alert(msg);
+    }
+</script>
+</body>
+</html>
