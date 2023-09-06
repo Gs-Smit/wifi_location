@@ -24,7 +24,7 @@
 
 ## Usage - 用法（用法。）
 <p>
-  在location_linux中
+  在location_linux中，MAC.txt设置
 </p>
 
 
